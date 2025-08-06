@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ArrowDownToLine,
   EllipsisVertical,
@@ -12,7 +12,10 @@ import {
 
 import "../style/Toolbar.css";
 
-import { type PdfScaleValue } from "../react-pdf-highlighter";
+import {
+  usePdfHighlighterContext,
+  type PdfScaleValue,
+} from "../react-pdf-highlighter";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -28,15 +31,26 @@ interface ToolbarProps {
   setPdfScaleValue: (value: PdfScaleValue) => void;
   toggleHighlightPen: () => void;
   toggleSidebar: () => void;
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
 }
 
 const Toolbar = ({
   setPdfScaleValue,
   toggleHighlightPen,
   toggleSidebar,
+  currentPage,
+  totalPages,
+  onPageChange,
 }: ToolbarProps) => {
   const [zoom, setZoom] = useState<number | null>(null);
   const [isHighlightPen, setIsHighlightPen] = useState<boolean>(false);
+  const [pageInput, setPageInput] = useState(currentPage.toString());
+
+  useEffect(() => {
+    setPageInput(currentPage.toString());
+  }, [currentPage]);
 
   const zoomIn = () => {
     if (zoom) {
@@ -93,8 +107,33 @@ const Toolbar = ({
             <Menu className="size-4" />
           </div>
           <div className="flex gap-1 items-center justify-center">
-            <Input className="w-12 h-fit py-0.5 rounded-xs px-2 text-sm border-0 bg-neutral-600 " />
-            <span>/ 1234</span>
+            <Input
+              type="number"
+              min={1}
+              max={totalPages}
+              value={pageInput}
+              onChange={(e) => setPageInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  const page = Number(pageInput);
+                  if (!isNaN(page) && page >= 1 && page <= totalPages) {
+                    onPageChange(page);
+                  } else {
+                    setPageInput(currentPage.toString());
+                  }
+                }
+              }}
+              onBlur={() => {
+                const page = Number(pageInput);
+                if (!isNaN(page) && page >= 1 && page <= totalPages) {
+                  onPageChange(page);
+                } else {
+                  setPageInput(currentPage.toString());
+                }
+              }}
+              className="w-12 h-fit py-0.5 rounded-xs px-2 text-sm border-0 bg-neutral-600 hide-spinner"
+            />
+            <span>/ {totalPages}</span>
           </div>
           <div className="toolbar-button">
             <Search className="size-4" />

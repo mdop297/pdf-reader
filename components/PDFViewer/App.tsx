@@ -27,10 +27,12 @@ import { testHighlights as _testHighlights } from "./utils/test-highlights";
 import type { CommentedHighlight } from "./types";
 import Sidebar from "./Sidebar/Sidebar";
 import { PDFDocumentProxy } from "pdfjs-dist";
+import { PDFViewer } from "pdfjs-dist/web/pdf_viewer.mjs";
 
 const TEST_HIGHLIGHTS = _testHighlights;
 const PRIMARY_PDF_URL = "https://arxiv.org/pdf/2203.11115";
-const SECONDARY_PDF_URL = "https://arxiv.org/pdf/1604.02480";
+// const SECONDARY_PDF_URL = "https://arxiv.org/pdf/1604.02480";
+const SECONDARY_PDF_URL = "/temp/test.pdf";
 
 const getNextId = () => String(Math.random()).slice(2);
 
@@ -57,9 +59,16 @@ const App = () => {
   const highlighterUtilsRef = useRef<PdfHighlighterUtils>(null);
   const pdfDocumentRef = useRef<PDFDocumentProxy>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [viewerReady, setViewerReady] = useState(false);
 
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
+  };
+
+  const onPageChange = (page: number) => {
+    setCurrentPage(page);
+    handleNavigation(page);
   };
 
   const toggleDocument = () => {
@@ -183,19 +192,48 @@ const App = () => {
     };
   }, [getHighlightById]);
 
+  useEffect(() => {
+    if (!viewerReady) return;
+
+    const viewer = highlighterUtilsRef.current?.getViewer() as PDFViewer;
+    const container = viewer?.container as HTMLDivElement;
+    if (!container) return;
+
+    const handleScroll = () => {
+      const current = viewer.currentPageNumber || 1;
+      setCurrentPage(current);
+    };
+
+    const timeoutId = setTimeout(() => {
+      container.addEventListener("scroll", handleScroll);
+      handleScroll();
+    }, 200);
+
+    return () => {
+      clearTimeout(timeoutId);
+      container.removeEventListener("scroll", handleScroll);
+    };
+  }, [highlighterUtilsRef.current]); // <--- why does this work ????
+
   return (
     <div className="App flex flex-col h-dvh">
-      <Toolbar
-        toggleSidebar={toggleSidebar}
-        setPdfScaleValue={(value) => setPdfScaleValue(value)}
-        toggleHighlightPen={() => setHighlightPen(!highlightPen)}
-      />
       <PdfLoader document={url}>
         {(pdfDocument) => {
           pdfDocumentRef.current = pdfDocument;
 
           return (
             <>
+              <Toolbar
+                currentPage={currentPage}
+                totalPages={pdfDocumentRef.current?.numPages ?? 0}
+                onPageChange={(page) => {
+                  setCurrentPage(page);
+                  handleNavigation(page);
+                }}
+                toggleSidebar={toggleSidebar}
+                setPdfScaleValue={(value) => setPdfScaleValue(value)}
+                toggleHighlightPen={() => setHighlightPen(!highlightPen)}
+              />
               <div className="flex overflow-hidden h-full pb-4">
                 {isSidebarOpen && (
                   <Sidebar
@@ -213,6 +251,7 @@ const App = () => {
                     onScrollAway={resetHash}
                     utilsRef={(_pdfHighlighterUtils) => {
                       highlighterUtilsRef.current = _pdfHighlighterUtils;
+                      setViewerReady(true);
                     }}
                     pdfScaleValue={pdfScaleValue}
                     textSelectionColor={
