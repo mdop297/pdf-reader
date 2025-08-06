@@ -1,5 +1,5 @@
 import Image from "next/image";
-import App from "./App";
+import App from "../components/PDFViewer/App";
 
 export default function Home() {
   return (

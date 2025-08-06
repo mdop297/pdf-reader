@@ -1,4 +1,4 @@
-import type { ViewportHighlight } from "./react-pdf-highlighter-extended";
+import type { ViewportHighlight } from "./react-pdf-highlighter";
 
 import "./style/HighlightPopup.css";
 import type { CommentedHighlight } from "./types";

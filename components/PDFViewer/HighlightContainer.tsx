@@ -8,7 +8,7 @@ import {
   usePdfHighlighterContext,
   type Tip,
   type ViewportHighlight,
-} from "./react-pdf-highlighter-extended";
+} from "./react-pdf-highlighter";
 import type { CommentedHighlight } from "./types";
 
 interface HighlightContainerProps {

@@ -11,7 +11,7 @@ import CommentForm from "./CommentForm";
 import ContextMenu, { type ContextMenuProps } from "./ContextMenu";
 import ExpandableTip from "./ExpandableTip";
 import HighlightContainer from "./HighlightContainer";
-import Toolbar from "./Toolbar";
+import Toolbar from "./Toolbar/Toolbar";
 import {
   PdfLoader,
   PdfHighlighter,
@@ -20,14 +20,12 @@ import {
   type PdfScaleValue,
   type Tip,
   type ViewportHighlight,
-} from "./react-pdf-highlighter-extended";
+} from "./react-pdf-highlighter";
 
 import "./style/App.css";
-import { testHighlights as _testHighlights } from "./test-highlights";
+import { testHighlights as _testHighlights } from "./utils/test-highlights";
 import type { CommentedHighlight } from "./types";
-import Sidebar from "./Sidebar";
-
-import dynamic from "next/dynamic";
+import Sidebar from "./Sidebar/Sidebar";
 
 const TEST_HIGHLIGHTS = _testHighlights;
 const PRIMARY_PDF_URL = "https://arxiv.org/pdf/2203.11115";
@@ -179,14 +177,14 @@ const App = () => {
   }, [getHighlightById]);
 
   return (
-    <div className="App flex flex-col h-dvh">
-      <Toolbar
-        setPdfScaleValue={(value) => setPdfScaleValue(value)}
-        toggleHighlightPen={() => setHighlightPen(!highlightPen)}
-      />
-      <PdfLoader document={url}>
-        {(pdfDocument) => (
-          <>
+    <PdfLoader document={url}>
+      {(pdfDocument) => (
+        <>
+          <div className="App flex flex-col h-dvh">
+            <Toolbar
+              setPdfScaleValue={(value) => setPdfScaleValue(value)}
+              toggleHighlightPen={() => setHighlightPen(!highlightPen)}
+            />
             <div className="flex overflow-hidden h-full pb-4">
               <Sidebar
                 pdfDocument={pdfDocument}
@@ -227,12 +225,11 @@ const App = () => {
                 </PdfHighlighter>
               </div>
             </div>
-          </>
-        )}
-      </PdfLoader>
-
-      {contextMenu && <ContextMenu {...contextMenu} />}
-    </div>
+            {contextMenu && <ContextMenu {...contextMenu} />}
+          </div>
+        </>
+      )}
+    </PdfLoader>
   );
 };
 

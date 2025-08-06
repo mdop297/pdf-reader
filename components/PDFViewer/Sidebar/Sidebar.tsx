@@ -4,7 +4,7 @@ import { Image, LayoutList, TableOfContents } from "lucide-react";
 // import { useViewer } from "./PDFProvider";
 // import TreeOutline from "./Outline";
 import TreeOutline from "./Outline";
-import type { CommentedHighlight } from "./types";
+import type { CommentedHighlight } from "../types";
 import type { PDFDocumentProxy } from "pdfjs-dist";
 import AnntationSidebar from "./Annotations";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";

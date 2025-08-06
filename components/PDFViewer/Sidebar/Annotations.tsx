@@ -1,6 +1,6 @@
-import type { Highlight } from "./react-pdf-highlighter-extended";
-import "./style/Sidebar.css";
-import type { CommentedHighlight } from "./types";
+import type { Highlight } from "../react-pdf-highlighter";
+import "../style/Sidebar.css";
+import type { CommentedHighlight } from "../types";
 
 interface AnntationSidebarProps {
   highlights: Array<CommentedHighlight>;

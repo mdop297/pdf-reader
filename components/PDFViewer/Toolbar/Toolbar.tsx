@@ -10,9 +10,9 @@ import {
   Search,
 } from "lucide-react";
 
-import "./style/Toolbar.css";
+import "../style/Toolbar.css";
 
-import type { PdfScaleValue } from "./react-pdf-highlighter-extended";
+import type { PdfScaleValue } from "../react-pdf-highlighter";
 import { Button } from "@/components/ui/button";
 import {
   Select,
