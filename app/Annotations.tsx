@@ -18,7 +18,7 @@ const AnntationSidebar = ({
   resetHighlights,
 }: AnntationSidebarProps) => {
   return (
-    <div className="sidebar" style={{ width: "25vw", maxWidth: "500px" }}>
+    <div className="sidebar w-full max-w-[400px]">
       {/* Description section */}
 
       {/* Highlights list */}
