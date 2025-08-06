@@ -12,7 +12,7 @@ export interface TreeOutlineProps {
   onNavigation: (pageNumber: number) => void;
 }
 
-const TreeOutline = ({ pdfDocument }: TreeOutlineProps) => {
+const TreeOutline = ({ pdfDocument, onNavigation }: TreeOutlineProps) => {
   const [outline, setOutline] = useState<PDFOutline>([]);
 
   useEffect(() => {
@@ -27,7 +27,12 @@ const TreeOutline = ({ pdfDocument }: TreeOutlineProps) => {
   return (
     <div className="flex flex-col">
       {outline.map((item, i) => (
-        <TreeOutlineItem key={i} item={item} />
+        <TreeOutlineItem
+          key={i}
+          item={item}
+          pdfDocument={pdfDocument}
+          onNavigation={onNavigation}
+        />
       ))}
     </div>
   );

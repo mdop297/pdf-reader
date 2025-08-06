@@ -12,7 +12,7 @@ import {
 
 import "../style/Toolbar.css";
 
-import type { PdfScaleValue } from "../react-pdf-highlighter";
+import { type PdfScaleValue } from "../react-pdf-highlighter";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -27,9 +27,14 @@ import { Separator } from "@/components/ui/separator";
 interface ToolbarProps {
   setPdfScaleValue: (value: PdfScaleValue) => void;
   toggleHighlightPen: () => void;
+  toggleSidebar: () => void;
 }
 
-const Toolbar = ({ setPdfScaleValue, toggleHighlightPen }: ToolbarProps) => {
+const Toolbar = ({
+  setPdfScaleValue,
+  toggleHighlightPen,
+  toggleSidebar,
+}: ToolbarProps) => {
   const [zoom, setZoom] = useState<number | null>(null);
   const [isHighlightPen, setIsHighlightPen] = useState<boolean>(false);
 
@@ -83,7 +88,7 @@ const Toolbar = ({ setPdfScaleValue, toggleHighlightPen }: ToolbarProps) => {
           <div
             className="toolbar-button"
             aria-label="Toggle sidebar"
-            // onClick={toggleSidebar}
+            onClick={toggleSidebar}
           >
             <Menu className="size-4" />
           </div>

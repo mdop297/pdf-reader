@@ -26,6 +26,7 @@ import "./style/App.css";
 import { testHighlights as _testHighlights } from "./utils/test-highlights";
 import type { CommentedHighlight } from "./types";
 import Sidebar from "./Sidebar/Sidebar";
+import { PDFDocumentProxy } from "pdfjs-dist";
 
 const TEST_HIGHLIGHTS = _testHighlights;
 const PRIMARY_PDF_URL = "https://arxiv.org/pdf/2203.11115";
@@ -54,6 +55,12 @@ const App = () => {
   const [highlightPen, setHighlightPen] = useState<boolean>(false);
   // Refs for PdfHighlighter utilities
   const highlighterUtilsRef = useRef<PdfHighlighterUtils>(null);
+  const pdfDocumentRef = useRef<PDFDocumentProxy>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen((prev) => !prev);
+  };
 
   const toggleDocument = () => {
     const urls = [PRIMARY_PDF_URL, SECONDARY_PDF_URL];
@@ -147,7 +154,7 @@ const App = () => {
     if (highlighterUtilsRef.current) {
       const viewer = highlighterUtilsRef.current.getViewer();
       if (viewer) {
-        viewer.currentPageNumber = pageNumber;
+        viewer.scrollPageIntoView({ pageNumber });
       }
     }
   };
@@ -177,59 +184,66 @@ const App = () => {
   }, [getHighlightById]);
 
   return (
-    <PdfLoader document={url}>
-      {(pdfDocument) => (
-        <>
-          <div className="App flex flex-col h-dvh">
-            <Toolbar
-              setPdfScaleValue={(value) => setPdfScaleValue(value)}
-              toggleHighlightPen={() => setHighlightPen(!highlightPen)}
-            />
-            <div className="flex overflow-hidden h-full pb-4">
-              <Sidebar
-                pdfDocument={pdfDocument}
-                highlights={highlights}
-                resetHighlights={resetHighlights}
-                toggleDocument={toggleDocument}
-                onNavigation={handleNavigation}
-              />
-              <div className=" flex-1 relative ">
-                <PdfHighlighter
-                  enableAreaSelection={(event) => event.altKey}
-                  pdfDocument={pdfDocument}
-                  onScrollAway={resetHash}
-                  utilsRef={(_pdfHighlighterUtils) => {
-                    highlighterUtilsRef.current = _pdfHighlighterUtils;
-                  }}
-                  pdfScaleValue={pdfScaleValue}
-                  textSelectionColor={
-                    highlightPen ? "rgba(255, 226, 143, 1)" : undefined
-                  }
-                  onSelection={
-                    highlightPen
-                      ? (selection) =>
-                          addHighlight(selection.makeGhostHighlight(), "")
-                      : undefined
-                  }
-                  selectionTip={
-                    highlightPen ? undefined : (
-                      <ExpandableTip addHighlight={addHighlight} />
-                    )
-                  }
-                  highlights={highlights}
-                >
-                  <HighlightContainer
-                    editHighlight={editHighlight}
-                    onContextMenu={handleContextMenu}
+    <div className="App flex flex-col h-dvh">
+      <Toolbar
+        toggleSidebar={toggleSidebar}
+        setPdfScaleValue={(value) => setPdfScaleValue(value)}
+        toggleHighlightPen={() => setHighlightPen(!highlightPen)}
+      />
+      <PdfLoader document={url}>
+        {(pdfDocument) => {
+          pdfDocumentRef.current = pdfDocument;
+
+          return (
+            <>
+              <div className="flex overflow-hidden h-full pb-4">
+                {isSidebarOpen && (
+                  <Sidebar
+                    pdfDocument={pdfDocumentRef.current}
+                    highlights={highlights}
+                    resetHighlights={resetHighlights}
+                    toggleDocument={toggleDocument}
+                    onNavigation={handleNavigation}
                   />
-                </PdfHighlighter>
+                )}
+                <div className=" flex-1 relative ">
+                  <PdfHighlighter
+                    enableAreaSelection={(event) => event.altKey}
+                    pdfDocument={pdfDocument}
+                    onScrollAway={resetHash}
+                    utilsRef={(_pdfHighlighterUtils) => {
+                      highlighterUtilsRef.current = _pdfHighlighterUtils;
+                    }}
+                    pdfScaleValue={pdfScaleValue}
+                    textSelectionColor={
+                      highlightPen ? "rgba(255, 226, 143, 1)" : undefined
+                    }
+                    onSelection={
+                      highlightPen
+                        ? (selection) =>
+                            addHighlight(selection.makeGhostHighlight(), "")
+                        : undefined
+                    }
+                    selectionTip={
+                      highlightPen ? undefined : (
+                        <ExpandableTip addHighlight={addHighlight} />
+                      )
+                    }
+                    highlights={highlights}
+                  >
+                    <HighlightContainer
+                      editHighlight={editHighlight}
+                      onContextMenu={handleContextMenu}
+                    />
+                  </PdfHighlighter>
+                </div>
               </div>
-            </div>
-            {contextMenu && <ContextMenu {...contextMenu} />}
-          </div>
-        </>
-      )}
-    </PdfLoader>
+            </>
+          );
+        }}
+      </PdfLoader>
+      {contextMenu && <ContextMenu {...contextMenu} />}
+    </div>
   );
 };
 
