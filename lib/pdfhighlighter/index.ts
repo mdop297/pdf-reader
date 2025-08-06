@@ -10,7 +10,7 @@ import {
   MonitoredHighlightContainerProps,
 } from "./components/MonitoredHighlightContainer";
 import { AreaHighlight, AreaHighlightProps } from "./components/AreaHighlight";
-import { PdfLoaderProps, PdfLoader } from "./components/PdfLoader";
+import { PdfLoaderProps } from "./components/PdfLoader";
 import {
   HighlightContainerUtils,
   useHighlightContainerContext,
@@ -26,7 +26,6 @@ import {
 } from "./contexts/PdfHighlighterContext";
 
 export {
-  PdfLoader,
   PdfHighlighter,
   TextHighlight,
   MonitoredHighlightContainer,
@@ -36,6 +35,13 @@ export {
   scaledPositionToViewport,
   usePdfHighlighterContext,
 };
+
+export const PdfLoader = dynamic(
+  () => import("./components/PdfLoader").then((mod) => mod.PdfLoader),
+  {
+    ssr: false,
+  }
+);
 
 export type {
   HighlightContainerUtils,

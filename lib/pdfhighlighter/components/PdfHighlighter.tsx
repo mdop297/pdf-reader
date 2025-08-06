@@ -1,3 +1,4 @@
+"use client";
 import "pdfjs-dist/web/pdf_viewer.css";
 import "../style/PdfHighlighter.css";
 import "../style/pdf_viewer.css";
@@ -53,11 +54,24 @@ let EventBus: typeof TEventBus,
   PDFViewer: typeof TPDFViewer;
 
 (async () => {
-  // Due to breaking changes in PDF.js 4.0.189. See issue #17228
-  const pdfjs = await import("pdfjs-dist/web/pdf_viewer.mjs");
-  EventBus = pdfjs.EventBus;
-  PDFLinkService = pdfjs.PDFLinkService;
-  PDFViewer = pdfjs.PDFViewer;
+  // Chỉ chạy ở client-side
+  if (typeof window === "undefined") return;
+
+  try {
+    // Load core library trước
+    const pdfjsLib = await import("pdfjs-dist");
+
+    // Set global reference
+    globalThis.pdfjsLib = pdfjsLib;
+
+    // Load viewer components
+    const pdfjs = await import("pdfjs-dist/web/pdf_viewer.mjs");
+    EventBus = pdfjs.EventBus;
+    PDFLinkService = pdfjs.PDFLinkService;
+    PDFViewer = pdfjs.PDFViewer;
+  } catch (error) {
+    console.error("Failed to load PDF.js:", error);
+  }
 })();
 
 const SCROLL_MARGIN = 10;
