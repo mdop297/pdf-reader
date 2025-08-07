@@ -5,6 +5,7 @@ import {
   Highlighter,
   Maximize2,
   Menu,
+  Minimize2,
   Minus,
   Plus,
   Search,
@@ -221,9 +222,7 @@ const Toolbar = ({
           <div className="toolbar-button" onClick={downloadPDF}>
             <ArrowDownToLine className="size-4" />
           </div>
-          <div className="toolbar-button">
-            <Maximize2 className="size-4" />
-          </div>
+
           <div className="toolbar-button">
             <EllipsisVertical className="size-4" />
           </div>

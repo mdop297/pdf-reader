@@ -197,7 +197,6 @@ const App = () => {
       <PdfLoader document={url}>
         {(pdfDocument) => {
           pdfDocumentRef.current = pdfDocument;
-
           return (
             <>
               <Toolbar

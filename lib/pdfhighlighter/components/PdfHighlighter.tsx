@@ -260,7 +260,7 @@ export const PdfHighlighter = ({
       linkServiceRef.current.setDocument(pdfDocument);
       linkServiceRef.current.setViewer(viewerRef.current);
       setIsViewerReady(true);
-      viewerRef.current.container.addEventListener("scroll", handleScroll);
+      viewerRef.current.container.addEventListener("scroll", updateCurrentPage);
     }, 100);
 
     debouncedDocumentInit();
@@ -294,12 +294,16 @@ export const PdfHighlighter = ({
   }, [selectionTip, highlights, onSelectionFinished]);
 
   // Event listeners
+  const updateCurrentPage = () => {
+    const currentPage = viewerRef.current?.currentPageNumber || 1;
+    setCurrentPage(currentPage);
+  };
+
   const handleScroll = () => {
     onScrollAway && onScrollAway();
     scrolledToHighlightIdRef.current = null;
     renderHighlightLayers();
-    const currentPage = viewerRef.current?.currentPageNumber || 1;
-    setCurrentPage(currentPage);
+    updateCurrentPage();
   };
 
   const handleMouseUp: PointerEventHandler = () => {
@@ -411,35 +415,73 @@ export const PdfHighlighter = ({
     );
   };
 
+  // const renderHighlightLayers = () => {
+  //   if (!viewerRef.current) return;
+
+  //   for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber++) {
+  //     const highlightBindings = highlightBindingsRef.current[pageNumber];
+
+  //     // Need to check if container is still attached to the DOM as PDF.js can unload pages.
+  //     if (highlightBindings?.container?.isConnected) {
+  //       renderHighlightLayer(highlightBindings, pageNumber);
+  //     } else {
+  //       const { textLayer } =
+  //         viewerRef.current!.getPageView(pageNumber - 1) || {};
+  //       if (!textLayer) continue; // Viewer hasn't rendered page yet
+
+  //       // textLayer.div for version >=3.0 and textLayer.textLayerDiv otherwise.
+  //       const highlightLayer = findOrCreateHighlightLayer(textLayer.div);
+
+  //       if (highlightLayer) {
+  //         const reactRoot = createRoot(highlightLayer);
+  //         highlightBindingsRef.current[pageNumber] = {
+  //           reactRoot,
+  //           container: highlightLayer,
+  //           textLayer: textLayer.div, // textLayer.div for version >=3.0 and textLayer.textLayerDiv otherwise.
+  //         };
+
+  //         renderHighlightLayer(
+  //           highlightBindingsRef.current[pageNumber],
+  //           pageNumber
+  //         );
+  //       }
+  //     }
+  //   }
+  // };
+
   const renderHighlightLayers = () => {
     if (!viewerRef.current) return;
 
     for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber++) {
       const highlightBindings = highlightBindingsRef.current[pageNumber];
 
-      // Need to check if container is still attached to the DOM as PDF.js can unload pages.
       if (highlightBindings?.container?.isConnected) {
         renderHighlightLayer(highlightBindings, pageNumber);
       } else {
         const { textLayer } =
           viewerRef.current!.getPageView(pageNumber - 1) || {};
-        if (!textLayer) continue; // Viewer hasn't rendered page yet
+        if (!textLayer) continue;
 
-        // textLayer.div for version >=3.0 and textLayer.textLayerDiv otherwise.
         const highlightLayer = findOrCreateHighlightLayer(textLayer.div);
+        if (!highlightLayer) continue;
 
-        if (highlightLayer) {
+        const existingBinding = Object.values(
+          highlightBindingsRef.current
+        ).find((b) => b.container === highlightLayer);
+
+        if (existingBinding) {
+          existingBinding.textLayer = textLayer.div;
+          renderHighlightLayer(existingBinding, pageNumber);
+        } else {
           const reactRoot = createRoot(highlightLayer);
-          highlightBindingsRef.current[pageNumber] = {
+          const newBinding = {
             reactRoot,
             container: highlightLayer,
-            textLayer: textLayer.div, // textLayer.div for version >=3.0 and textLayer.textLayerDiv otherwise.
+            textLayer: textLayer.div,
           };
 
-          renderHighlightLayer(
-            highlightBindingsRef.current[pageNumber],
-            pageNumber
-          );
+          highlightBindingsRef.current[pageNumber] = newBinding;
+          renderHighlightLayer(newBinding, pageNumber);
         }
       }
     }
