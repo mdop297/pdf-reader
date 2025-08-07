@@ -214,6 +214,8 @@ const App = () => {
                 {isSidebarOpen && (
                   <Sidebar
                     pdfDocument={pdfDocumentRef.current}
+                    viewerRef={viewerRef}
+                    currentPage={currentPage}
                     highlights={highlights}
                     resetHighlights={resetHighlights}
                     toggleDocument={toggleDocument}
@@ -227,6 +229,8 @@ const App = () => {
                     onScrollAway={resetHash}
                     utilsRef={(_pdfHighlighterUtils) => {
                       highlighterUtilsRef.current = _pdfHighlighterUtils;
+                      viewerRef.current =
+                        highlighterUtilsRef.current.getViewer();
                     }}
                     pdfScaleValue={pdfScaleValue}
                     textSelectionColor={

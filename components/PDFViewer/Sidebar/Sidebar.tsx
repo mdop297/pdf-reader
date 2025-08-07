@@ -8,9 +8,14 @@ import type { CommentedHighlight } from "../types";
 import type { PDFDocumentProxy } from "pdfjs-dist";
 import AnntationSidebar from "./Annotations";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import Thumbnail from "./Thumbnail";
+import { PDFViewer } from "pdfjs-dist/web/pdf_viewer.mjs";
+import { RefObject } from "react";
 
 interface SidebarProps {
   pdfDocument: PDFDocumentProxy;
+  viewerRef: RefObject<PDFViewer | null>;
+  currentPage: number;
   highlights: Array<CommentedHighlight>;
   resetHighlights: () => void;
   toggleDocument: () => void;
@@ -19,6 +24,8 @@ interface SidebarProps {
 
 export function Sidebar({
   pdfDocument,
+  viewerRef,
+  currentPage,
   highlights,
   resetHighlights,
   toggleDocument,
@@ -54,8 +61,12 @@ export function Sidebar({
             {/* tree outline */}
           </TabsContent>
           {/* Thumbnails */}
-          <TabsContent value="thumbnails" className="h-full w-full bg-cyan-500">
-            Thumbnails
+          <TabsContent value="thumbnails" className="h-full w-full ">
+            <Thumbnail
+              pdfDocument={pdfDocument}
+              viewerRef={viewerRef}
+              currentPage={currentPage}
+            />
           </TabsContent>
           <TabsContent value="annos" className="h-full w-full overflow-y-auto">
             {/* <TreeOutline /> */}
