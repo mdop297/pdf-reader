@@ -30,8 +30,8 @@ import { PDFDocumentProxy } from "pdfjs-dist";
 import { PDFViewer } from "pdfjs-dist/web/pdf_viewer.mjs";
 
 const TEST_HIGHLIGHTS = _testHighlights;
-const PRIMARY_PDF_URL = "https://arxiv.org/pdf/2203.11115";
-const SECONDARY_PDF_URL = "https://arxiv.org/pdf/1604.02480";
+export const PRIMARY_PDF_URL = "https://arxiv.org/pdf/2203.11115";
+export const SECONDARY_PDF_URL = "https://arxiv.org/pdf/1604.02480";
 
 const getNextId = () => String(Math.random()).slice(2);
 

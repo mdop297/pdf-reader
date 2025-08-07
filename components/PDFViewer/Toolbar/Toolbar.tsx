@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { PRIMARY_PDF_URL } from "../App";
 
 interface ToolbarProps {
   setPdfScaleValue: (value: PdfScaleValue) => void;
@@ -94,6 +95,19 @@ const Toolbar = ({
       }
     }
   };
+
+  const downloadPDF = async () => {
+    const res = await fetch(PRIMARY_PDF_URL);
+    const blob = await res.blob();
+
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "myfile.pdf";
+    link.click();
+    window.URL.revokeObjectURL(url);
+  };
+
   return (
     <div className=" px-1 py-1 border-b bg-neutral-700 rounded-xs flex flex-row text-neutral-200">
       <div className="w-full flex items-center justify-between">
@@ -204,7 +218,7 @@ const Toolbar = ({
         {/* Right section */}
 
         <div className="flex items-center space-x-1 text-sm h-5">
-          <div className="toolbar-button">
+          <div className="toolbar-button" onClick={downloadPDF}>
             <ArrowDownToLine className="size-4" />
           </div>
           <div className="toolbar-button">
