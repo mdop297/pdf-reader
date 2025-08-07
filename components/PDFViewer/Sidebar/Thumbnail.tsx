@@ -1,4 +1,4 @@
-import { PDFDocumentProxy } from "pdfjs-dist";
+import { PDFDocumentProxy, RenderTask } from "pdfjs-dist";
 import { PDFViewer } from "pdfjs-dist/web/pdf_viewer.mjs";
 import React, { useEffect, useRef } from "react";
 
@@ -15,26 +15,43 @@ const Thumbnail = ({
 }: ThumbnailsProps) => {
   const thumbnailRefs = useRef<(HTMLCanvasElement | null)[]>([]);
   useEffect(() => {
+    const renderTasks: RenderTask[] = [];
+
     const renderThumbnails = async () => {
       for (let i = 0; i < pdfDocument.numPages; i++) {
         const page = await pdfDocument.getPage(i + 1);
         const viewport = page.getViewport({ scale: 0.25 });
 
-        const canvas = thumbnailRefs.current[i];
-        if (!canvas) continue;
+        const offscreenCanvas = document.createElement("canvas");
+        const context = offscreenCanvas.getContext("2d");
+        offscreenCanvas.width = viewport.width;
+        offscreenCanvas.height = viewport.height;
 
-        const context = canvas.getContext("2d");
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-
-        await page.render({
+        const renderTask = page.render({
           canvasContext: context!,
           viewport,
-        }).promise;
+        });
+        await renderTask.promise;
+
+        // Copy vào canvas hiển thị
+        const onscreenCanvas = thumbnailRefs.current[i];
+        if (onscreenCanvas) {
+          const onscreenCtx = onscreenCanvas.getContext("2d");
+          onscreenCanvas.width = offscreenCanvas.width;
+          onscreenCanvas.height = offscreenCanvas.height;
+          onscreenCtx?.drawImage(offscreenCanvas, 0, 0);
+        }
       }
     };
-
     renderThumbnails();
+
+    return () => {
+      renderTasks.forEach((task) => {
+        if (task.onContinue) {
+          task.cancel();
+        }
+      });
+    };
   }, [pdfDocument]);
 
   useEffect(() => {

@@ -51,7 +51,7 @@ const App = () => {
   const currentPdfIndexRef = useRef(0);
   const [contextMenu, setContextMenu] = useState<ContextMenuProps | null>(null);
   const [pdfScaleValue, setPdfScaleValue] = useState<PdfScaleValue | undefined>(
-    "auto"
+    1
   );
   const [highlightPen, setHighlightPen] = useState<boolean>(false);
   // Refs for PdfHighlighter utilities
@@ -61,7 +61,6 @@ const App = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
   const [currentPage, setCurrentPage] = useState<number>(1);
   // const [viewerReady, setViewerReady] = useState(false);
-
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
   };
@@ -197,11 +196,12 @@ const App = () => {
       <PdfLoader document={url}>
         {(pdfDocument) => {
           pdfDocumentRef.current = pdfDocument;
+
           return (
             <>
               <Toolbar
                 currentPage={currentPage}
-                totalPages={pdfDocumentRef.current?.numPages ?? 0}
+                totalPages={pdfDocumentRef.current?.numPages}
                 onPageChange={(page) => {
                   setCurrentPage(page);
                   handleNavigation(page);
