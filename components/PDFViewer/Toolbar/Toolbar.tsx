@@ -131,7 +131,7 @@ const Toolbar = ({
                   setPageInput(currentPage.toString());
                 }
               }}
-              className="w-12 h-fit py-0.5 rounded-xs px-2 text-sm border-0 bg-neutral-600 hide-spinner"
+              className="w-12 h-fit py-0.5 rounded-xs px-2 text-sm border-0 bg-neutral-600 text-right hide-spinner"
             />
             <span>/ {totalPages}</span>
           </div>

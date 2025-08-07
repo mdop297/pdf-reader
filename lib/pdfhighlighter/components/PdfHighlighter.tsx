@@ -54,17 +54,13 @@ let EventBus: typeof TEventBus,
   PDFViewer: typeof TPDFViewer;
 
 (async () => {
-  // Chỉ chạy ở client-side
   if (typeof window === "undefined") return;
 
   try {
-    // Load core library trước
     const pdfjsLib = await import("pdfjs-dist");
 
-    // Set global reference
     globalThis.pdfjsLib = pdfjsLib;
 
-    // Load viewer components
     const pdfjs = await import("pdfjs-dist/web/pdf_viewer.mjs");
     EventBus = pdfjs.EventBus;
     PDFLinkService = pdfjs.PDFLinkService;
@@ -188,6 +184,7 @@ export interface PdfHighlighterProps {
    * other style props like `textSelectionColor` or overwrite pdf_viewer.css
    */
   style?: CSSProperties;
+  setCurrentPage: (page: number) => void;
 }
 
 /**
@@ -215,6 +212,7 @@ export const PdfHighlighter = ({
   textSelectionColor = DEFAULT_TEXT_SELECTION_COLOR,
   utilsRef,
   style,
+  setCurrentPage,
 }: PdfHighlighterProps) => {
   // State
   const [tip, setTip] = useState<Tip | null>(null);
@@ -262,6 +260,7 @@ export const PdfHighlighter = ({
       linkServiceRef.current.setDocument(pdfDocument);
       linkServiceRef.current.setViewer(viewerRef.current);
       setIsViewerReady(true);
+      viewerRef.current.container.addEventListener("scroll", handleScroll);
     }, 100);
 
     debouncedDocumentInit();
@@ -299,6 +298,8 @@ export const PdfHighlighter = ({
     onScrollAway && onScrollAway();
     scrolledToHighlightIdRef.current = null;
     renderHighlightLayers();
+    const currentPage = viewerRef.current?.currentPageNumber || 1;
+    setCurrentPage(currentPage);
   };
 
   const handleMouseUp: PointerEventHandler = () => {

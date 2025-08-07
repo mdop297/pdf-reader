@@ -57,9 +57,10 @@ const App = () => {
   // Refs for PdfHighlighter utilities
   const highlighterUtilsRef = useRef<PdfHighlighterUtils>(null);
   const pdfDocumentRef = useRef<PDFDocumentProxy>(null);
+  const viewerRef = useRef<PDFViewer>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [viewerReady, setViewerReady] = useState(false);
+  // const [viewerReady, setViewerReady] = useState(false);
 
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
@@ -191,29 +192,6 @@ const App = () => {
     };
   }, [getHighlightById]);
 
-  useEffect(() => {
-    if (!viewerReady) return;
-
-    const viewer = highlighterUtilsRef.current?.getViewer() as PDFViewer;
-    const container = viewer?.container as HTMLDivElement;
-    if (!container) return;
-
-    const handleScroll = () => {
-      const current = viewer.currentPageNumber || 1;
-      setCurrentPage(current);
-    };
-
-    const timeoutId = setTimeout(() => {
-      container.addEventListener("scroll", handleScroll);
-      handleScroll();
-    }, 200);
-
-    return () => {
-      clearTimeout(timeoutId);
-      container.removeEventListener("scroll", handleScroll);
-    };
-  }, [highlighterUtilsRef.current]); // <--- why does this work ????
-
   return (
     <div className="App flex flex-col h-dvh">
       <PdfLoader document={url}>
@@ -250,7 +228,6 @@ const App = () => {
                     onScrollAway={resetHash}
                     utilsRef={(_pdfHighlighterUtils) => {
                       highlighterUtilsRef.current = _pdfHighlighterUtils;
-                      setViewerReady(true);
                     }}
                     pdfScaleValue={pdfScaleValue}
                     textSelectionColor={
@@ -268,6 +245,7 @@ const App = () => {
                       )
                     }
                     highlights={highlights}
+                    setCurrentPage={setCurrentPage}
                   >
                     <HighlightContainer
                       editHighlight={editHighlight}
