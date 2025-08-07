@@ -61,7 +61,7 @@ export function Sidebar({
             {/* tree outline */}
           </TabsContent>
           {/* Thumbnails */}
-          <TabsContent value="thumbnails" className="h-full w-full ">
+          <TabsContent value="thumbnails" className="h-full w-full">
             <Thumbnail
               pdfDocument={pdfDocument}
               viewerRef={viewerRef}

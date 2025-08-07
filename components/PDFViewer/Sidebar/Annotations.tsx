@@ -19,8 +19,6 @@ const AnntationSidebar = ({
 }: AnntationSidebarProps) => {
   return (
     <div className="sidebar w-full max-w-[400px]">
-      {/* Description section */}
-
       {/* Highlights list */}
       {highlights && (
         <ul className="sidebar__highlights">
@@ -32,7 +30,7 @@ const AnntationSidebar = ({
                 updateHash(highlight);
               }}
             >
-              <div>
+              <div className="text-sm">
                 {/* Highlight comment and text */}
                 <strong>{highlight.comment}</strong>
                 {highlight.content.text && (
